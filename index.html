@@ -164,8 +164,10 @@ class PortScanner {
     }
   }
   complete() {
-        document.getElementById('spinner').remove();
-
+        var $spinnner = document.getElementById('spinner');
+        if ($spinner) {
+            document.getElementById('spinner').remove();
+        }
         if(this.openPorts.length) {
           this.progress.innerText = "Найдены открытые порты: "+this.openPorts+' на хосте '+this.url.replace(/^http:\/\//,"");
         } else {
