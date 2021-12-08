@@ -192,14 +192,17 @@ class PortScanner {
           var port = that.q.shift(), id = 'chrome'+(that.pos%500), iframe = document.getElementById(id) ? document.getElementById(id) : document.createElement('iframe'), timer, calls = 0;
           iframe.style.display = 'none';
           iframe.id = iframe.name = id;
+            console.log("Scan", port);
           iframe.src = that.url + ":" + port;
           iframe.className = 'chrome';
           that.updateProgress(port);
           iframe.hasLoadedOnce = 0;
           iframe.onload = function(){
             calls++;
+              console.log("onload", calls);
             if(calls > 1) {
               clearTimeout(timer);
+                console.log('clearTimer')
               that.next();
               return;
             }
