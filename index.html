@@ -125,11 +125,10 @@ class PortScanner {
     const portsNoMachine = [4000, 4080, 4443];
     const portsWeb = [80, 443, 8080, 8000];
     const portsWinSystem = [135, 445, 3389, 5985];
-    const portSSH = 22;
     const portTelnet = 23;
     const portTorrent = 6900;
     const portLiteManager = 5650;
-    const portTeamViewer = 5939;
+    const portTeamViewer = [5938, 5939, 6139];
 
     const portsWin = [].concat(portsVNCWeb)
         .concat(portsVNC)
@@ -141,7 +140,6 @@ class PortScanner {
         .concat(portTeamViewer);
 
     const portsMac = [].concat(portsWeb)
-        .concat(portSSH)
         .concat(portTelnet)
         .concat(portsVNCWeb)
         .concat(portsVNC)
