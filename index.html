@@ -169,7 +169,8 @@ class PortScanner {
         if(this.openPorts.length) {
           this.progress.innerText = "Найдены открытые порты: "+this.openPorts+' на хосте '+this.url.replace(/^http:\/\//,"");
         } else {
-          this.progress.remove();
+            this.progress.innerText = "Ничего не найдено";
+//           this.progress.remove();
         }
         if(this.hooks && this.hooks.oncomplete) {
           this.hooks.oncomplete();
