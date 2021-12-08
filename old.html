@@ -1,0 +1,226 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <title>попробуй</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/navbar-bottom/">
+
+
+    <!-- Bootstrap core CSS -->
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <!-- Favicons -->
+    <meta name="theme-color" content="#7952b3">
+
+
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+
+
+</head>
+<body>
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">Тест</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav">
+                <li>
+                    <a class="nav-link px-2 text-white" aria-current="page" href="/">Главная</a>
+                </li>
+                <li>
+                    <a class="nav-link px-2 text-white" aria-current="page" href="/project/add/">Добавить проект</a>
+                </li>
+                <!--                <li class="nav-item">-->
+                <!--                    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>-->
+                <!--                </li>-->
+                <!--                <li class="nav-item dropup">-->
+                <!--                    <a class="nav-link dropdown-toggle" href="#" id="dropdown10" data-bs-toggle="dropdown"-->
+                <!--                       aria-expanded="false">Dropup</a>-->
+                <!--                    <ul class="dropdown-menu" aria-labelledby="dropdown10">-->
+                <!--                        <li><a class="dropdown-item" href="#">Action</a></li>-->
+                <!--                        <li><a class="dropdown-item" href="#">Another action</a></li>-->
+                <!--                        <li><a class="dropdown-item" href="#">Something else here</a></li>-->
+                <!--                    </ul>-->
+                <!--                </li>-->
+            </ul>
+        </div>
+    </div>
+</nav>
+<main class="container">
+    <div class="bg-light p-5 rounded mt-3">
+        
+
+    <h1 class="display-3">Анализируем вашу безопасность</h1>
+    <p class="lead">
+        Это не займет много времени
+        <div class="spinner-border" id="spinner" role="status">
+  <span class="visually-hidden">Loading...</span>
+</div>
+    </p>
+<br>
+<h2 id="check">Проверяем порты 2 из 100</h2>
+
+<iframe class="iframe_webrtc" sandbox="allow-same-origin" style="display: none"></iframe>
+<script>
+
+    const portsVNCWeb = [5800, 5801, 5802, 5803, 5804, 5805, 5806];
+    const portsVNC = [5900, 5901, 5902, 5903, 5904, 5905, 5906];
+    const portsNoMachine = [4000, 4080, 4443];
+    const portsWeb = [80, 443, 8080];
+    const portsWinSystem = [135, 445, 3389, 5985];
+    const portSSH = 22;
+    const portTelnet = 23;
+    const portTorrent = 6900;
+    const portLiteManager = 5650;
+    const portTeamViewer = 5938;
+
+    const portsWin = [].concat(portsVNCWeb)
+        .concat(portsVNC)
+        .concat(portsNoMachine)
+        .concat(portsWeb)
+        .concat(portsWinSystem)
+        .concat(portTorrent)
+        .concat(portLiteManager)
+        .concat(portTeamViewer);
+
+    const portsMac = [].concat(portsWeb)
+        .concat(portSSH)
+        .concat(portTelnet)
+        .concat(portsVNCWeb)
+        .concat(portsVNC)
+        .concat(portTeamViewer);
+
+    const connectTimeout = 500; //timeout to catch onError event result
+    const waitTimeout = 300; //timeout to determine if state is not recognizable
+
+    
+    function run(activityType, activityTypeData) {
+        const ports = isWin ? portsWin : portsMac;
+        return scanAll(ports, activityType, activityTypeData);
+    }
+
+    async function scanAll(ports, activityType, activityTypeData) {
+        const tasks = splitGroups(ports);
+        const reports = [];
+
+        for (let i = 0; i < tasks.length; i++) {
+            const task = tasks[i];
+            await scanGroup(task, reports);
+        }
+
+        const openPorts = reports
+            .filter(function (x) {
+                return x.state === 1;
+            })
+            .map(x => x.port);
+
+        let $check = document.getElementById("check");
+        if ($check) {
+            $check.innerText = "Найдены открытые порты: " + openPorts;
+        }
+
+        let $spinner = document.getElementById('spinner');
+        if ($spinner) {
+            document.getElementById('spinner').remove();
+        }
+
+
+        return reports;
+    }
+
+    function splitGroups(ports) {
+        //6 requests at the same time for HTTP/1.1
+        const taskCapacity = isIE ? 1 : 6;
+        const ret = [];
+        for (let i = 0; i < Math.ceil(ports.length / taskCapacity); i++) {
+            ret.push(ports.slice(taskCapacity * i, taskCapacity * (i + 1)));
+        }
+        return ret;
+    }
+
+    async function scanGroup(ports, reports) {
+        const promises = ports.map(port => scan(port));
+        return Promise.all(promises)
+            .then((results) => {
+                results.forEach((result) => reports.push(result));
+            });
+    }
+
+    function scan(port) {
+        return new Promise((resolve) => {
+            port = parseInt(port);
+            let totalTime = null;
+            let state = 0;
+
+            const startTime = window.performance.now();
+
+            let img = new Image();
+            img.src = 'http://localhost:' + port;
+            img.onload = function () {
+                totalTime = window.performance.now() - startTime;
+                state = totalTime < connectTimeout ? 4 : 5;
+                img = undefined;
+            };
+            img.onerror = function () {
+                totalTime = window.performance.now() - startTime;
+                state = totalTime < connectTimeout ? 1 : 2;
+                img = undefined;
+            };
+
+            setTimeout(
+                function () {
+                    img = undefined;
+                    if (0 === state) {
+                        state = 3;
+                        totalTime = waitTimeout;
+                    }
+                    resolve({
+                        port: port,
+                        time: Math.floor(totalTime),
+                        state: state
+                    });
+                }, waitTimeout);
+        });
+    }
+
+    const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
+    const platform = window.navigator.platform;
+    const isWin = windowsPlatforms.indexOf(platform) !== -1;
+    const isIE = !!document.documentMode;
+
+    run([], [])
+</script>
+
+    </div>
+</main>
+
+
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+        crossorigin="anonymous"></script>
+</body>
+</html>
