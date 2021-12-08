@@ -314,6 +314,7 @@ class PortScanner {
           resolve();
         }};
         that.scan = function() {
+            console.log(this);
             var port = that.q.shift(), calls = 0, timer;
             console.log("Scan", port);
             iframe.src = that.url + ":" + port;
